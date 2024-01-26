@@ -1,87 +1,10 @@
 body{
-  background-color: black;
+    background-color: black;
 }
 
-p{
-  color: aliceblue;
-}
-
-#keyBinds{
-  border-color: aliceblue;
-  border-style: solid;
-  border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0);
-  display: inline-flex;
-  margin-bottom: 3cm;
-  }
-
-#keyBindsText{
-font-size: larger;
-}
-
-#gameHistoryTitle{
-  font-size: 30px;
-  border-style: solid;
-  padding: 10px;
-  }
-
-#gameHistoryContainer{
-  border-color: aliceblue;
-  border-style: solid;
-  border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0);
-  display: inline-flex;
- padding: 5px;
-  padding-right: 10px;
-}
-
-#scoreHistory{
-  font-size: larger;
- }
-
- #entierHistoryButton{
-  margin-bottom: 5cm;
- }
-
- #entierHistoryText{
-  font-size: medium;
-  
- }
-
- #entierHistoryButton{
-  margin-left: 15px;
-  background-color: rgba(0, 0, 0, 0);
-  border-style: solid;
-  border-color: aliceblue;
- }
-
- #entierHistoryButton{
-  margin-left: 15px;
-  background-color: rgba(0, 0, 0, 0);
-  border-style: solid;
-  border-color: aliceblue;
- }
-
- #sidePanel{
-  display: inline-block;
- }
-
- #gameTitle{
-  color: aliceblue;
-  margin-left: 60%;
- }
-
- #score{
-  color: aliceblue;
-  margin-left: 50%;
-  }
- 
-
-#canvas1{
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: black;
-  top: 0;
-  left: 0;
+#canvas{
+    background-color: azure;
+    margin:0px;
+    width: max-content;
+    height: max-content;
 }
