@@ -1,6 +1,12 @@
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 
+let pixelFont = new FontFace("Pixel sans",
+"url(/Pixelify_Sans/PixelifySans-VariableFont_wght.ttf)");
+document.fonts.add(pixelFont);
+   
+
+
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
@@ -16,7 +22,6 @@ let alive=true;
 let canDraw=true;
 
 addEventListener("click",e=>{
-    
     if(alive===false){
         canvas.style.cursor="none";
         location.reload();
@@ -92,6 +97,11 @@ function spawnObsticals(){
     if(canDraw===true){
     ctx.clearRect(0,0,canvas.height,canvas.width);
     ctx.drawImage(birdImg,200,height,50,50);
+
+    ctx.fillStyle="rgb(0,0,0)";
+    ctx.font="20px Pixel sans";
+    ctx.fillText("I am inside of canvas",200,200);
+    ctx.stroke();
     
     for(i=0;i<obsticalList.length;i++){
         obsticalList[i].handleObstical();}}}
@@ -100,8 +110,10 @@ function spawnObsticals(){
         ctx.clearRect(0,0,canvas.height,canvas.width);
         ctx.drawImage(birdImg,200,height,50,50);
         
-        for(i=0;i<obsticalList.length;i++){
-            obsticalList[i].handleObstical();}}
+        ctx.fillStyle="rgb(0,0,0)";
+        ctx.font="20px Pixel sans";
+        ctx.fillText("I am inside of canvas",200,200);
+        ctx.stroke();}
     
 let spacePressed=false;
 
