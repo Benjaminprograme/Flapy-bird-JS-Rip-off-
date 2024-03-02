@@ -1,29 +1,15 @@
 let updateFrames = true;
 
-function setUpgameCanvas() {
-  const gameCanvas = document.getElementById("gameCanvas");
-  gameCanvas.width = window.innerWidth;
-  gameCanvas.height = window.innerHeight;
-
-  addEventListener("resize", () => {
-    gameCanvas.width = window.innerWidth;
-    gameCanvas.height = window.innerHeight;
-
-    drawLastFrame();
-    drawScene();
-  });
-}
-
-setUpgameCanvas();
-const gameContext = gameCanvas.getContext("2d");
-
 let bird = {
   height: 400,
   alive: true,
   score: 0,
   birdImg: new Image(),
   checkHeight: function () {
-    if (this.height >= 825 || this.height <= 0) {
+    if (
+      this.height >= screen.height - screen.height / 12.5 ||
+      this.height <= 0
+    ) {
       this.alive = false;
     }
 
@@ -48,6 +34,25 @@ let bird = {
     bird.birdImg.src = "imgs/bird.png";
   },
 };
+
+function setUpgameCanvas() {
+  const gameCanvas = document.getElementById("gameCanvas");
+  gameCanvas.width = screen.width;
+  gameCanvas.height = screen.height;
+  gameCanvas.style.backgroundSize =
+    screen.width + "px " + (screen.height - 70) + "px";
+
+  addEventListener("resize", () => {
+    gameCanvas.width = screen.width;
+    gameCanvas.height = screen.height;
+    bird.checkHeight();
+    gameCanvas.style.backgroundSize =
+      screen.width + "px " + (screen.height - 70) + "px";
+  });
+}
+
+setUpgameCanvas();
+const gameContext = gameCanvas.getContext("2d");
 
 bird.loadBirdImg();
 
