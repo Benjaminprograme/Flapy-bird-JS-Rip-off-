@@ -6,7 +6,7 @@ body {
 #gameCanvas {
   background-image: url("imgs/cityBackground.png");
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: top;
   background-attachment: fixed;
 
   margin: 0px;
@@ -14,4 +14,22 @@ body {
   height: 100%;
 
   cursor: none;
+
+  position: absolute;
+  z-index: 1;
+}
+
+#cursorPressGif {
+  position: absolute;
+  z-index: 2;
+
+  display: inline-flex;
+
+  width: 32px;
+  height: 32px;
+
+  margin-top: 25%;
+  margin-left: 50%;
+
+  visibility: hidden;
 }

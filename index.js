@@ -1,106 +1,58 @@
-//Pre-game loading
-let updateFrames = true;
-
-function setUpgameCanvas() {
-  const gameCanvas = document.getElementById("gameCanvas");
-  gameCanvas.width = screen.width;
-  gameCanvas.height = screen.height;
-  gameCanvas.style.backgroundSize =
-    screen.width + "px " + (screen.height - 70) + "px";
-
-  addEventListener("resize", () => {
-    gameCanvas.width = screen.width;
-    gameCanvas.height = screen.height;
-    bird.checkHeight();
-    gameCanvas.style.backgroundSize =
-      screen.width + "px " + (screen.height - 70) + "px";
-  });
-}
-
-function loadFont() {
-  let pixelFont = new FontFace(
-    "Pixel sans",
-    "url(/Pixelify_Sans/PixelifySans-VariableFont_wght.ttf)"
-  );
-  document.fonts.add(pixelFont);
-
-  if ((pixelFont = FontFace)) {
-    setTimeout(drawScoreUI(), 5000);
-  }
-}
+let score = 0;
 
 let bird = {
   height: 400,
   alive: true,
-  score: 0,
   spacePressed: false,
-  birdImg: new Image(),
+  image: new Image(),
+  maxHeight: -50,
+  minHeight: 995,
+  canFly: true,
   checkHeight: function () {
-    if (
-      this.height >= screen.height - screen.height / 12.5 ||
-      this.height <= 0
-    ) {
-      this.alive = false;
+    if (this.alive) {
+      if (this.height <= this.maxHeight) {
+        this.pullBirdDown();
+        this.canFly = false;
+        enableRestart();
+      }
     }
-
-    if (!this.alive && this.height <= screen.height - screen.height / 12.5) {
-      this.height += 12.5;
+    if (this.height >= this.minHeight) {
+      this.alive = false;
+      enableRestart();
+    }
+    if (!this.canFly) {
+      this.pullBirdDown();
+    }
+  },
+  pullBirdDown: function () {
+    this.image.src = "imgs/birdRotatedDead.png";
+    this.height += 12.5;
+    drawScene();
+  },
+  applyGravity: function () {
+    if (bird.alive && !bird.spacePressed) {
+      bird.height += 5;
+      bird.checkHeight();
+      drawScene();
+    } else if (bird.alive && bird.spacePressed) {
+      bird.height -= 5;
+      bird.checkHeight();
       drawScene();
     }
   },
-  applyGravity: function () {
-    if (updateFrames) {
-      if (bird.alive && !bird.spacePressed) {
-        bird.height += 5;
-        drawScene();
-      } else if (bird.alive && bird.spacePressed) {
-        bird.height -= 5;
-        drawScene();
-      }
-    }
-    bird.checkHeight();
-  },
-  loadBirdImg: function () {
-    bird.birdImg.src = "imgs/bird.png";
+  loadImg: function () {
+    bird.image.src = "imgs/bird.png";
   },
 };
 
-addEventListener("keypress", (key) => {
-  if (key.code === "Space" && !bird.spacePressed && bird.alive) {
-    bird.height -= 85;
-    bird.birdImg.src = "imgs/birdRotated.png";
-    gameContext.clearRect(200, bird.height, 50, 50);
-    spacePressed = true;
-  }
-});
-
-addEventListener("keyup", (key) => {
-  if (key.code === "Space") {
-    bird.birdImg.src = "imgs/bird.png";
-    bird.spacePressed = false;
-  }
-});
-
-bird.loadBirdImg();
-
-setUpgameCanvas();
-const gameContext = gameCanvas.getContext("2d");
-
-loadFont();
-
-let gravityUpdate = setInterval(bird.applyGravity, 20);
-gravityUpdate;
-
-let obsticalList = [];
-
 class obstical {
-  constructor() {
-    this.xPosition = undefined;
-    this.yPosition = Math.floor(Math.random() * 150) * -1;
-    this.width = 150;
-    this.height = 600;
-    this.scoreGranted = false;
-  }
+  xPosition = 2300;
+  yPosition = Math.floor(Math.random() * 150) * -1;
+  width = 150;
+  height = 600;
+  scoreGranted = false;
+
+  constructor() {}
 
   drawObstical() {
     const pipeImgUpper = new Image();
@@ -144,10 +96,9 @@ class obstical {
       this.xPosition >= 45 &&
       this.xPosition <= 245
     ) {
-      gameContext.drawImage(bird.birdImg, 200, bird.height, 50, 50);
-
+      gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
       bird.alive = false;
-      updateFrames = false;
+      enableRestart();
     }
 
     if (
@@ -155,10 +106,8 @@ class obstical {
       this.xPosition >= 45 &&
       this.xPosition <= 245
     ) {
-      gameContext.drawImage(bird.birdImg, 200, bird.height, 50, 50);
-
       bird.alive = false;
-      updateFrames = false;
+      enableRestart();
     }
   }
 
@@ -172,46 +121,84 @@ class obstical {
 
   handleScore() {
     if (this.xPosition <= 45 && !this.scoreGranted) {
-      bird.score += 1;
+      score += 1;
       this.scoreGranted = true;
     }
   }
 }
 
-function spawnObsticals() {
-  obsticalList.push(new obstical());
-  obsticalList[obsticalList.length - 1].xPosition = 2300;
-}
+addEventListener("keypress", (key) => {
+  const shouldFlyOnSpace =
+    bird.canFly && key.code === "Space" && !bird.spacePressed && bird.alive;
+  if (shouldFlyOnSpace) {
+    bird.height -= 85;
+    bird.image.src = "imgs/birdRotated.png";
+    gameContext.clearRect(200, bird.height, 50, 50);
+    spacePressed = true;
+  }
+});
 
-let spawnTimer = setInterval(spawnObsticals, 2500);
-spawnTimer;
-//Loaded game
-function updateCursorVisibilty() {
-  addEventListener("click", () => {
-    if (!bird.alive) {
-      gameCanvas.style.cursor = "none";
-      location.reload();
-    }
+addEventListener("keyup", (key) => {
+  if (key.code === "Space") {
+    bird.image.src = "imgs/bird.png";
+    bird.spacePressed = false;
+  }
+});
+
+function setUpgameCanvas() {
+  const gameCanvas = document.getElementById("gameCanvas");
+  gameCanvas.width = screen.width;
+  gameCanvas.height = screen.height;
+  const STR_PIXEL = "px ";
+  let gameBackgroundSize =
+    screen.width + STR_PIXEL + (screen.height - 70) + STR_PIXEL;
+  gameCanvas.style.backgroundSize = gameBackgroundSize;
+
+  addEventListener("resize", () => {
+    gameCanvas.width = screen.width;
+    gameCanvas.height = screen.height;
+    bird.checkHeight();
+    gameCanvas.style.backgroundSize = gameBackgroundSize;
   });
-
-  setInterval(() => {
-    if (bird.alive) {
-      gameCanvas.style.cursor = "pointer";
-    }
-  }, 1000);
 }
+setUpgameCanvas();
+const gameContext = gameCanvas.getContext("2d");
 
-function drawLastFrame() {
-  gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
-  gameContext.drawImage(bird.birdImg, 200, bird.height, 50, 50);
+function loadFont() {
+  let pixelFont = new FontFace(
+    "Pixel sans",
+    "url(./Pixelify_Sans/PixelifySans-VariableFont_wght.ttf)"
+  );
+  document.fonts.add(pixelFont);
   drawScoreUI();
 }
 
+loadFont();
+bird.loadImg();
+
+let gravityUpdate = setInterval(bird.applyGravity, 20);
+gravityUpdate;
+
+let obsticalList = [];
+
+function drawScoreUI() {
+  let uiXPosition = gameCanvas.width / 2;
+  const uiYPosition = 200;
+  if (!bird.alive) {
+    uiXPosition = gameCanvas.width / 5;
+  }
+  gameContext.fillStyle = "rgb(237,236,230)";
+  gameContext.font = "200px Pixel sans";
+  gameContext.fillText(score, uiXPosition, uiYPosition);
+  gameContext.strokeStyle = "black";
+  gameContext.strokeText(score, uiXPosition, uiYPosition);
+}
+
 function drawScene() {
-  if (updateFrames) {
+  if (bird.alive) {
     gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
-    drawScoreUI();
-    gameContext.drawImage(bird.birdImg, 200, bird.height, 50, 50);
+
+    gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
 
     for (i = 0; i < obsticalList.length; i++) {
       obsticalList[i].drawObstical();
@@ -220,13 +207,36 @@ function drawScene() {
       obsticalList[i].handleScore();
       drawScoreUI();
     }
+    drawScoreUI();
   }
 }
 
-function drawScoreUI() {
-  gameContext.fillStyle = "rgb(237,236,230)";
-  gameContext.font = "200px Pixel sans";
-  gameContext.fillText(bird.score, gameCanvas.width / 2, 200);
-  gameContext.strokeStyle = "black";
-  gameContext.strokeText(bird.score, gameCanvas.width / 2, 200);
+function drawFrameOfDeath() {
+  this.alive = true;
+  gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
+  score = "";
+  drawScene();
+  this.alive = false;
+}
+
+let spawnTimer = setInterval(spawnObsticals, 2500);
+spawnTimer;
+
+function spawnObsticals() {
+  obsticalList.push(new obstical());
+}
+
+function enableRestart() {
+  setTimeout(drawFrameOfDeath(), 800);
+  if (!bird.alive) {
+    let cursorPress = document.getElementById("cursorPressGif");
+    cursorPress.style.visibility = "visible";
+    score = "Click to retry";
+    drawScoreUI();
+    gameCanvas.style.opacity = "50%";
+    gameCanvas.style.cursor = "pointer";
+    addEventListener("click", () => {
+      location.reload();
+    });
+  }
 }
