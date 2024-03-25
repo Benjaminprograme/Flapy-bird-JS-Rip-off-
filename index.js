@@ -46,7 +46,6 @@ let bird = {
   },
   handleCollision: function () {
     bird.collisionDetected = true;
-    gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
     bird.alive = false;
     enableRestart();
   },
@@ -98,20 +97,22 @@ class obstical {
   }
 
   handleCollision() {
-    if (
-      this.yPosition + this.height + 5 > bird.height &&
-      this.xPosition >= 45 &&
-      this.xPosition <= 245
-    ) {
-      bird.handleCollision();
-    }
+    if (bird.alive && bird.canFly) {
+      if (
+        this.yPosition + this.height + 5 > bird.height &&
+        this.xPosition >= 45 &&
+        this.xPosition <= 245
+      ) {
+        bird.handleCollision();
+      }
 
-    if (
-      this.yPosition + 800 + 5 - 40 < bird.height &&
-      this.xPosition >= 45 &&
-      this.xPosition <= 245
-    ) {
-      bird.handleCollision();
+      if (
+        this.yPosition + 800 + 5 - 40 < bird.height &&
+        this.xPosition >= 45 &&
+        this.xPosition <= 245
+      ) {
+        bird.handleCollision();
+      }
     }
   }
 
@@ -201,21 +202,13 @@ function drawScoreUI() {
 function drawScene() {
   if (bird.alive) {
     gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
-
     gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
-
     if (bird.canFly) {
       for (i = 0; i < obsticalList.length; i++) {
         obsticalList[i].drawObstical();
         obsticalList[i].movingObstical();
         obsticalList[i].handleCollision();
         obsticalList[i].handleScore();
-        drawScoreUI();
-      }
-    } else {
-      for (i = 0; i < obsticalList.length; i++) {
-        console.log("drawing obtical");
-        obsticalList[i].drawObstical();
         drawScoreUI();
       }
     }
@@ -226,15 +219,14 @@ function drawScene() {
 function drawFrameOfDeath() {
   this.alive = true;
   gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
+  for (i = 0; i < obsticalList.length; i++) {
+    obsticalList[i].drawObstical();
+  }
   score = "Click to retry";
   drawScoreUI();
   drawScene();
   this.alive = false;
-  if (!bird.collisionDetected) {
-    gameContext.drawImage(bird.image, 200, bird.minHeight, 50, 50);
-  } else {
-    console.log("Collision correction triggerd");
-  }
+  gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
 }
 
 let spawnTimer = setInterval(spawnObsticals, 2500);
