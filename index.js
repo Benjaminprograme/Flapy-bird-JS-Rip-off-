@@ -8,16 +8,17 @@ let bird = {
   maxHeight: -50,
   minHeight: 995,
   canFly: true,
+  collisionDetected: false,
   checkHeight: function () {
     if (this.alive) {
       if (this.height <= this.maxHeight) {
         this.pullBirdDown();
         this.canFly = false;
-        enableRestart();
       }
     }
     if (this.height >= this.minHeight) {
       this.alive = false;
+      this.canFly = false;
       enableRestart();
     }
     if (!this.canFly) {
@@ -42,6 +43,12 @@ let bird = {
   },
   loadImg: function () {
     bird.image.src = "imgs/bird.png";
+  },
+  handleCollision: function () {
+    bird.collisionDetected = true;
+    gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
+    bird.alive = false;
+    enableRestart();
   },
 };
 
@@ -96,9 +103,7 @@ class obstical {
       this.xPosition >= 45 &&
       this.xPosition <= 245
     ) {
-      gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
-      bird.alive = false;
-      enableRestart();
+      bird.handleCollision();
     }
 
     if (
@@ -106,8 +111,7 @@ class obstical {
       this.xPosition >= 45 &&
       this.xPosition <= 245
     ) {
-      bird.alive = false;
-      enableRestart();
+      bird.handleCollision();
     }
   }
 
@@ -200,12 +204,20 @@ function drawScene() {
 
     gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
 
-    for (i = 0; i < obsticalList.length; i++) {
-      obsticalList[i].drawObstical();
-      obsticalList[i].movingObstical();
-      obsticalList[i].handleCollision();
-      obsticalList[i].handleScore();
-      drawScoreUI();
+    if (bird.canFly) {
+      for (i = 0; i < obsticalList.length; i++) {
+        obsticalList[i].drawObstical();
+        obsticalList[i].movingObstical();
+        obsticalList[i].handleCollision();
+        obsticalList[i].handleScore();
+        drawScoreUI();
+      }
+    } else {
+      for (i = 0; i < obsticalList.length; i++) {
+        console.log("drawing obtical");
+        obsticalList[i].drawObstical();
+        drawScoreUI();
+      }
     }
     drawScoreUI();
   }
@@ -214,9 +226,15 @@ function drawScene() {
 function drawFrameOfDeath() {
   this.alive = true;
   gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
-  score = "";
+  score = "Click to retry";
+  drawScoreUI();
   drawScene();
   this.alive = false;
+  if (!bird.collisionDetected) {
+    gameContext.drawImage(bird.image, 200, bird.minHeight, 50, 50);
+  } else {
+    console.log("Collision correction triggerd");
+  }
 }
 
 let spawnTimer = setInterval(spawnObsticals, 2500);
@@ -227,16 +245,14 @@ function spawnObsticals() {
 }
 
 function enableRestart() {
-  setTimeout(drawFrameOfDeath(), 800);
   if (!bird.alive) {
     let cursorPress = document.getElementById("cursorPressGif");
     cursorPress.style.visibility = "visible";
-    score = "Click to retry";
-    drawScoreUI();
     gameCanvas.style.opacity = "50%";
     gameCanvas.style.cursor = "pointer";
     addEventListener("click", () => {
       location.reload();
     });
   }
+  setTimeout(drawFrameOfDeath(), 800);
 }
