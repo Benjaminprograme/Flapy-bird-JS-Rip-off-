@@ -8,11 +8,9 @@ let bird = {
   maxHeight: -50,
   minHeight: 995,
   canFly: true,
-  collisionDetected: false,
   checkHeight: function () {
     if (this.alive) {
       if (this.height <= this.maxHeight) {
-        this.pullBirdDown();
         this.canFly = false;
       }
     }
@@ -33,23 +31,27 @@ let bird = {
   applyGravity: function () {
     if (bird.alive && !bird.spacePressed) {
       bird.height += 5;
-      bird.checkHeight();
-      drawScene();
+      updateBirdLoaction();
     } else if (bird.alive && bird.spacePressed) {
       bird.height -= 5;
-      bird.checkHeight();
-      drawScene();
+      updateBirdLoaction();
     }
   },
   loadImg: function () {
     bird.image.src = "imgs/bird.png";
   },
   handleCollision: function () {
-    bird.collisionDetected = true;
     bird.alive = false;
     enableRestart();
   },
 };
+
+function updateBirdLoaction() {
+  bird.checkHeight();
+  drawScene();
+}
+
+let obsticalList = [];
 
 class obstical {
   xPosition = 2300;
@@ -184,8 +186,6 @@ bird.loadImg();
 let gravityUpdate = setInterval(bird.applyGravity, 20);
 gravityUpdate;
 
-let obsticalList = [];
-
 function drawScoreUI() {
   let uiXPosition = gameCanvas.width / 2;
   const uiYPosition = 200;
@@ -203,23 +203,24 @@ function drawScene() {
   if (bird.alive) {
     gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
     gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
-    if (bird.canFly) {
-      for (i = 0; i < obsticalList.length; i++) {
+    drawScoreUI();
+    for (i = 0; i < obsticalList.length - 1; i++) {
+      drawScoreUI();
+      if (bird.canFly) {
         obsticalList[i].drawObstical();
         obsticalList[i].movingObstical();
         obsticalList[i].handleCollision();
         obsticalList[i].handleScore();
-        drawScoreUI();
       }
+      drawScoreUI();
     }
-    drawScoreUI();
   }
 }
 
 function drawFrameOfDeath() {
   this.alive = true;
   gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
-  for (i = 0; i < obsticalList.length; i++) {
+  for (i = 0; i < obsticalList.length - 1; i++) {
     obsticalList[i].drawObstical();
   }
   score = "Click to retry";
