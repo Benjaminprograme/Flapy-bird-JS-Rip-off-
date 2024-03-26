@@ -19,7 +19,7 @@ let bird = {
       this.canFly = false;
       enableRestart();
     }
-    if (!this.canFly) {
+    if (!this.canFly && this.alive) {
       this.pullBirdDown();
     }
   },
@@ -152,20 +152,26 @@ addEventListener("keyup", (key) => {
   }
 });
 
-function setUpgameCanvas() {
-  const gameCanvas = document.getElementById("gameCanvas");
+function resizeToDefaultCanvasSize() {
   gameCanvas.width = screen.width;
   gameCanvas.height = screen.height;
+}
+
+function setUpgameCanvas() {
+  const gameCanvas = document.getElementById("gameCanvas");
+  resizeToDefaultCanvasSize();
   const STR_PIXEL = "px ";
   let gameBackgroundSize =
     screen.width + STR_PIXEL + (screen.height - 70) + STR_PIXEL;
   gameCanvas.style.backgroundSize = gameBackgroundSize;
 
   addEventListener("resize", () => {
-    gameCanvas.width = screen.width;
-    gameCanvas.height = screen.height;
+    resizeToDefaultCanvasSize();
     bird.checkHeight();
     gameCanvas.style.backgroundSize = gameBackgroundSize;
+    if (!bird.alive) {
+      drawFrameOfDeath();
+    }
   });
 }
 setUpgameCanvas();
@@ -202,6 +208,7 @@ function drawScoreUI() {
 function drawScene() {
   if (bird.alive) {
     gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
+    drawGround();
     gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
     drawScoreUI();
     for (i = 0; i < obsticalList.length - 1; i++) {
@@ -248,4 +255,10 @@ function enableRestart() {
     });
   }
   setTimeout(drawFrameOfDeath(), 800);
+}
+
+function drawGround() {
+  const groundImg = new Image();
+  groundImg.src = "imgs/ground";
+  gameContext.drawImage(groundImg, 200, 200, 200, 200);
 }
