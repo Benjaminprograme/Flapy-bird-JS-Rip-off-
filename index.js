@@ -8,6 +8,11 @@ let bird = {
   maxHeight: -50,
   minHeight: 995,
   canFly: true,
+  drawHitbox: function () {
+    gameContext.beginPath();
+    gameContext.rect(200, this.height, 55, 55);
+    gameContext.stroke();
+  },
   checkHeight: function () {
     if (this.alive) {
       if (this.height <= this.maxHeight) {
@@ -109,7 +114,7 @@ class obstical {
       }
 
       if (
-        this.yPosition + 800 + 5 - 40 < bird.height &&
+        this.yPosition + 800 + 10 - 40 < bird.height &&
         this.xPosition >= 45 &&
         this.xPosition <= 245
       ) {
@@ -157,13 +162,14 @@ function resizeToDefaultCanvasSize() {
   gameCanvas.height = screen.height;
 }
 
+const STR_PIXEL = "px ";
+let gameBackgroundSize =
+  screen.width + STR_PIXEL + (screen.height - 70) + STR_PIXEL;
+gameCanvas.style.backgroundSize = gameBackgroundSize;
+
 function setUpgameCanvas() {
   const gameCanvas = document.getElementById("gameCanvas");
   resizeToDefaultCanvasSize();
-  const STR_PIXEL = "px ";
-  let gameBackgroundSize =
-    screen.width + STR_PIXEL + (screen.height - 70) + STR_PIXEL;
-  gameCanvas.style.backgroundSize = gameBackgroundSize;
 
   addEventListener("resize", () => {
     resizeToDefaultCanvasSize();
@@ -208,9 +214,6 @@ function drawScoreUI() {
 function drawScene() {
   if (bird.alive) {
     gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
-    drawGround();
-    gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
-    drawScoreUI();
     for (i = 0; i < obsticalList.length - 1; i++) {
       drawScoreUI();
       if (bird.canFly) {
@@ -221,28 +224,34 @@ function drawScene() {
       }
       drawScoreUI();
     }
+    drawGround();
+    gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
+    drawScoreUI();
   }
 }
 
 function drawFrameOfDeath() {
-  this.alive = true;
-  gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
-  for (i = 0; i < obsticalList.length - 1; i++) {
-    obsticalList[i].drawObstical();
+  if (!bird.alive) {
+    gameContext.clearRect(0, 0, gameCanvas.height, gameCanvas.width);
+    score = "Click to retry";
+    for (i = 0; i < obsticalList.length - 1; i++) {
+      obsticalList[i].drawObstical();
+    }
+    drawScoreUI();
+    drawGround();
+    gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
+    bird.drawHitbox();
   }
-  score = "Click to retry";
-  drawScoreUI();
-  drawScene();
-  this.alive = false;
-  gameContext.drawImage(bird.image, 200, bird.height, 50, 50);
 }
-
-let spawnTimer = setInterval(spawnObsticals, 2500);
-spawnTimer;
 
 function spawnObsticals() {
-  obsticalList.push(new obstical());
+  for (i = 0; i < 8; i++) {
+    obsticalList.push(new obstical());
+    obsticalList[i].xPosition = 2300 + 875 * i;
+  }
 }
+
+spawnObsticals();
 
 function enableRestart() {
   if (!bird.alive) {
@@ -259,6 +268,22 @@ function enableRestart() {
 
 function drawGround() {
   const groundImg = new Image();
-  groundImg.src = "imgs/ground";
-  gameContext.drawImage(groundImg, 200, 200, 200, 200);
+  groundImg.src = "imgs/ground.jpg";
+  gameContext.drawImage(
+    groundImg,
+    0,
+    bird.minHeight + 50,
+    gameCanvas.width,
+    200
+  );
+}
+
+function refreshGameCanvas() {
+  setTimeout(() => {
+    let gameCanvasBackgroundSize = gameCanvas.style.backgroundSize;
+    resizeToDefaultCanvasSize();
+    drawScoreUI();
+    gameCanvasBackgroundSize = gameBackgroundSize;
+    drawFrameOfDeath();
+  }, 750);
 }
