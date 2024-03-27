@@ -10,7 +10,7 @@ let bird = {
   canFly: true,
   drawHitbox: function () {
     gameContext.beginPath();
-    gameContext.rect(200, this.height, 55, 55);
+    gameContext.rect(200, this.height, 60, 60);
     gameContext.stroke();
   },
   checkHeight: function () {
